@@ -1,0 +1,17 @@
+[
+
+    {
+        "id": "6353cb13a23a5b9f69c1e7c8",
+        "permissions": [
+            "Manage Users",
+            "Update Members",
+            "View Members",
+            "Delete Members",
+            "Create Members",
+            "View Movies",
+            "Create Movies",
+            "Delete Movies",
+            "Update Movies"
+        ]
+    }
+]
