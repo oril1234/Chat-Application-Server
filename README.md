@@ -1,6 +1,5 @@
 # Cinema-Main-Server
-This is the main server, which is one of 2 servers of a cinema management system. It peovides 5 web services:The server handles the cinema movies, the members who subscribe to them, the subscribtions and the users of the system who actually handle those subscriptions for the members
-This respository is of one of 2 cinema management system servers that provides 3 web services: 
+This is the main server, which is one of 2 servers of a cinema management system. It peovides 5 web services:
 1. Movies web service that handles all the movies shown in the cinema 
 2. Members web service for people who subscribe to movies by the cinema employees 
 3. Web service of Subscripttions of members to movies
