@@ -9,9 +9,9 @@ This respository is of one of 2 cinema management system servers that provides 3
 
 The server operates against 4 data sources
 1. Mongo Data base collection of users used to store their credentials - usernames and passwords
-2. JSON file of those users with their personal details like first name, last name, email, and the amount of time in minutes they are allowed to stay logged in to the system.
+2. JSON file of those users with their personal details like first name, last name, email, and the amount of time in minutes they are allowed to stay logged in to the system
 3. JSON file of those users permissions - all the actions they are allowed to do, as determined by the system admin
-4. Subscriptions server of the system which provides 3 web services: members, movies and subscriptions. If you wish to dive deep on it, please [click the link](https://github.com/oril1234/Cinema-Management-System-Subscriptions-Flask-Server)
+4. Subscriptions server of the system which provides 3 web services: members, movies and subscriptions. If you wish to dive deep on it, please [click the link](https://github.com/oril1234/Cinema-Management-System-Subscriptions-Flask-Server).
 
 The server consists of 4 layers:
 1. Main - The module that is the first to receive API calls
