@@ -26,6 +26,7 @@ class AuthBL:
         self.__users_file_dal=UsersFileDAL()
 
 
+    #Get the JWT token according to the credentials
     def get_token(self,username, password):
 
         #user id from data base
@@ -51,7 +52,7 @@ class AuthBL:
             session_timeout=filtered_users_by_user_id[0]["sessionTimeout"]
 
             #Encoding the JWT with the data of user id and
-            #the expiration tome of JWT using key and algorithm
+            #the expiration time of JWT using key and algorithm
             token = jwt.encode({"userid" : user_id,
             "expiration":str(datetime.utcnow()+timedelta(minutes=session_timeout))
             }, self.__key, self.__algorithm)
