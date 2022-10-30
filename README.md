@@ -20,7 +20,7 @@ The server consists of 4 layers:
 
 
 Below is the architecture of the server as described above:
-![diagram drawio (6)](https://user-images.githubusercontent.com/49225452/198857454-1daaf8b8-e1fb-4b88-9d16-974487076a59.png)
+![Main Server Diagram](https://user-images.githubusercontent.com/49225452/198899750-fa0dcec6-700b-433b-9c3a-3861167a4bb4.png)
 
 ### Requirements
 Python 3.8.+
