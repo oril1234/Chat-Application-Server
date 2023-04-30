@@ -1,16 +1,18 @@
 from pymongo import MongoClient
 from bson import ObjectId
 
-#Data layer of users that connects with users collection
-#in Mongo Data bas
-class UsersDBDal:
+
+
+#Data layer of users that chats with one another within private chats 
+#and groups
+class UsersDal:
     def __init__(self):
 
         #Connection established with Mongo DB
         self.__client = MongoClient(port=27017)
 
         #The data base in which the collection is located
-        self.__db = self.__client["usersDB"]
+        self.__db = self.__client["chatDB"]
 
         #The collection of users with which this class connects
         self.__collection=self.__db["users"]
@@ -20,21 +22,28 @@ class UsersDBDal:
         arr = []
         arr = list(self.__collection.find({}))
         return arr
+    
+    #Fetching all the users that are not in the provided list of users ids
+    def get_all_users_except(self,users_ids):
+        arr = []
+        arr = list(self.__collection.find({ "_id" :{"$nin": users_ids} }))
+        return arr
 
-    #Fetching user's data by his id
-    def get_user_by_id(self,id):
-        user = self.__collection.find_one({ "_id" : ObjectId(id) })
+
+    #Fetching user's data by his email
+    def get_user(self,email):
+        user = self.__collection.find_one({ "_id" : email })
         return user
 
-    #Fetching user's data by his username
-    def get_user_by_username(self,username):
-        user = self.__collection.find_one({ "username" : username })
-        return user
+    #Fetching user by given ids
+    def get_specified_users(self,users):
+        users = list(self.__collection.find({ "_id" :{"$in": users} }))
+        return users
 
     #Adding new user to db
     def add_user(self,obj):
         self.__collection.insert_one(obj)
-        return str(obj["_id"])    
+        return obj["_id"]   
 
     #Update existing user's details in the db
     def update_user(self,id,obj):
