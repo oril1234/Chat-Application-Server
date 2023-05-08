@@ -1,5 +1,5 @@
 # Chat Application
-This is a server of a chat application. It listens to [React clients](https://github.com/oril1234/Cinema-Management-System-React-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
+This is the server of a chat application. It listens to [React clients](https://github.com/oril1234/Cinema-Management-System-React-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
 The server supports the following actions
 1. Send and receive messages in private chats of 2 users, and group chats with multiple participants
 2. Create new groups
