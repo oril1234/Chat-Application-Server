@@ -1,12 +1,14 @@
 # Chat Application
-This is the server of a chat application, built by Flask framework of python. It listens to [React clients](https://github.com/oril1234/Cinema-Management-System-React-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
-The server supports the following actions
-1. Send and receive messages in private chats of 2 users, and group chats with multiple participants
-2. Create new groups
-3. Adding new members to groups
-4. Removing members from groups by its admin
-5. Self exit from group of a member
-6. block and unblock users by others.
+This is the server of a chat application, built by Flask framework of python. It listens to [React clients](https://github.com/oril1234/Chat-Application-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
+The server supports the following actions:
+1. Logging in and signing up to the application
+2. Send and receive messages in private chats of 2 users, and group chats with multiple participants
+3. Create new groups
+4. Adding new members to groups
+5. Removing members from groups by its admin
+6. Self exit from group of a member
+7. Delete private chats and group chats
+8. Block and unblock users by others.
 
 The server consists of 4 layers:
 1. Main - The module that is the first to receive API calls. It communicates with clients using both HTTP and Websocket protocols. The Websocket connection is implemented using the library socket.io.
