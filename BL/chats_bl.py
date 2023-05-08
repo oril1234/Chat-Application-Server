@@ -1,6 +1,4 @@
 from DAL.users_chats_dal import UsersChatsDal
-from datetime import datetime, timedelta
-import jwt
 from flask_bcrypt import Bcrypt
 
 #Business logic class of chats between two users

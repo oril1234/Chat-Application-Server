@@ -74,58 +74,22 @@ socketio = SocketIO(app,cors_allowed_origins="*")
 
 #A dictionary of clients that are currently connected to the server via
 #the websocket connection. Each connected client appears twice in the
-#dictionay: 1. With the session id as key and the user id of the 
+#dictionay: 1. With the session id as key and the user id (email) of the 
 #connected client as the value 2. With the the user id of the 
-#connected client as key and the session id of the 
-#as the value  
+#connected client as key and a list of all the session ids from which he's
+#connnected to the server as the value  
 online_users={}
-
-#Triggered when a client diconnect from the websocker 
-#connection with the server
-@socketio.on('disconnect')
-def disconnect():
-    user_by_session_id=None
-    session_id_by_user=None
-
-    #Executed if session id of the client that is disconnection
-    #is in the dictionary
-    if request.sid in online_users:
-        #Fetching user id of disconnected client using the session
-        user_by_session_id=str(online_users[request.sid])
-
-    if user_by_session_id is not None:
-        #Fetching session id by user id of disconnected client
-        session_id_by_user=str(online_users[user_by_session_id])
-        #Deleting the entry its key is the user id, and 
-        # the value is session id
-        del online_users[user_by_session_id]
-
-        if session_id_by_user is not None:
-            #Deleting the entry its key is the session id, and 
-            # the value is user id
-            del online_users[session_id_by_user]
-
-        #Notifying other users connected from other client,
-        #with which the disconnected client has chats with
-        #of the disconnection
-        emit("user-logged-out",user_by_session_id
-        ,broadcast=True,skip_sid=request.sid)
 
 #Storing data of a client that just connected
 @socketio.on("add-user")
 def add_user(data):
 
-    #Check if user email appears as a key in the online users dictionary
-    #to tackle the case in which a client reconnects after
-    #unexpected diconnection, and if he does, delete his previous
-    #entries
-    if data["user_email"] in online_users:
-        previous_session_id=online_users[data["user_email"]]
-        del online_users[previous_session_id]
-        del online_users[data["user_email"]]
 
-    #Update dictinary with new connection details of client    
-    online_users[data["user_email"]]=request.sid
+    #Update dictinary with new connection details of client
+    if data["user_email"] not in online_users:
+        online_users[data["user_email"]]=[] 
+    if request.sid not in online_users[data["user_email"]]:
+        online_users[data["user_email"]].append(request.sid)
     online_users[request.sid]=data["user_email"]
 
     #A dictionary of the statuses of all the chat partners of the current
@@ -143,7 +107,7 @@ def add_user(data):
             #Executed if patner is connected
             if partner_id in online_users:
                 users_connection_status[partner_id]=True
-                users_session_ids.append(online_users[partner_id])
+                users_session_ids.extend(online_users[partner_id])
 
             #Executed if patner is not connected
             else:
@@ -158,7 +122,42 @@ def add_user(data):
         #that he's just connected
         socketio.emit("new-user-logged-in",
                       data["user_email"],to=users_session_ids)
-        
+
+
+#Triggered when a client diconnect from the websocker 
+#connection with the server
+@socketio.on('disconnect')
+def disconnect():
+    user_id_by_session_id=None
+
+    #Executed if session id of the client that is disconnected
+    #is in the dictionary
+    if request.sid in online_users:
+        #Fetching user id of disconnected client using the session
+        user_id_by_session_id=online_users[request.sid]
+        del online_users[request.sid]
+
+    if (user_id_by_session_id is not None and user_id_by_session_id
+        in online_users):
+        #Fetching session ids by user id of disconnected client
+        session_ids_by_user_id=online_users[user_id_by_session_id]
+        #Deleting the session of disconnected client
+        session_ids_by_user_id=list(filter(lambda session:session!=request.sid,
+                                        session_ids_by_user_id))
+        all_user_sessions_disconnected=not session_ids_by_user_id
+        if all_user_sessions_disconnected:
+            del online_users[user_id_by_session_id]
+        else:
+            online_users[user_id_by_session_id]=session_ids_by_user_id
+
+        #Notifying other users connected from other clients,
+        #with whom the disconnected client has chats with
+        #of the disconnection, as long as there no other sessions
+        #from which he's logged in
+        if all_user_sessions_disconnected:
+            emit("user-logged-out",user_id_by_session_id
+            ,broadcast=True,skip_sid=request.sid)
+            
 
 #Triggered when a new client is connecting in order to add him to groups
 #of which he's a member using flask socket.io rooms 
@@ -170,10 +169,10 @@ def join_groups(groups):
 #Function to add new members to group by admin
 def add_new_members_to_group(group_data,members):
         for member in members:
-            curr_session=(online_users[member["_id"]] if 
+            curr_sessions=(online_users[member["_id"]] if 
             member["_id"] in online_users else None)
-            if curr_session is not None:
-                socketio.server.enter_room(curr_session,group_data["group_id"])
+            if curr_sessions is not None:
+                socketio.server.enter_room(curr_sessions,group_data["group_id"])
 
 #Triggered when a new group is created by its admin and adding its
 #members to flask socket.io rooms
@@ -209,8 +208,8 @@ def add_new_member_to_group(data):
         #their addition to group
         for member in new_members:
             if member["_id"] in online_users:
-                to_session_id=online_users[member["_id"]]
-                emit("added-to-group",group_data,to=to_session_id) 
+                to_session_ids=online_users[member["_id"]]
+                emit("added-to-group",group_data,to=to_session_ids) 
 
 #Triggered when admin removes a member from the group
 @socketio.on("remove-group-member")
@@ -218,22 +217,22 @@ def remove_group_member(removal_data):
         member_id=removal_data["member_id"]
         group_id=removal_data["group_id"]
 
-        session_id=(online_users[member_id] if 
+        session_ids=(online_users[member_id] if 
         member_id in online_users else None)
 
-        if session_id is not None:
-            socketio.server.leave_room(session_id,group_id)
+        if session_ids is not None:
+            socketio.server.leave_room(session_ids,group_id)
             #Notify user of his removal
             emit("removed-from-group",removal_data,
-                to=session_id)
+                to=session_ids)
 
 #Triggered when a message is sent from one user to another
 #in a chat or wwithin a group
 @socketio.on("send-message")
 def send_message(data):
+    print(data)
     #Format message date time
     data["sentAt"]=str(parser.parse(data["sentAt"])+timedelta(hours=3))
-    
     #Executed if message was sent in a group
     if "groupID" in data:
         #Notifying group members of the new message
@@ -243,9 +242,12 @@ def send_message(data):
     #Executed if message was sent in a chat between 2 users
     else:
         if data["to"] in online_users:
-            to_session_id=online_users[data["to"]]
+            to_session_ids=online_users[data["to"]]
+            if data["userID"] in online_users:
+                to_session_ids.extend(online_users[data["userID"]])
             #Notifying chat partner of the new message
-            socketio.emit("receive-message",data,to=to_session_id)
+            socketio.emit("receive-message",data,to=to_session_ids,
+                          skip_sid=request.sid)
 
 #Triggered when a user is blocked by another one 
 @socketio.on("block-user")
@@ -254,17 +256,17 @@ def block_user(block_data):
     #Notifying the user that is blocked of the blocking if
     #he's connected to server
     if block_data["blocked_id"] in online_users:
-        to_session_id=online_users[block_data["blocked_id"]]
-        socketio.emit("blocked",block_data,to=to_session_id)
+        to_session_ids=online_users[block_data["blocked_id"]]
+        socketio.emit("blocked",block_data,to=to_session_ids)
 
 #Triggered when a user blocking by another one is cancelled
 @socketio.on("unblock-user")
 def unblock_user(unblock_data):
     if unblock_data["unblocked_id"] in online_users:
-        to_session_id=online_users[unblock_data["unblocked_id"]]
+        to_session_ids=online_users[unblock_data["unblocked_id"]]
 
         #Notify unblocked user of his unblocking
-        socketio.emit("unblocked",unblock_data,to=to_session_id)
+        socketio.emit("unblocked",unblock_data,to=to_session_ids)
    
 
 if __name__ == '__main__':

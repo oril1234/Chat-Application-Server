@@ -4,11 +4,7 @@ from DAL.users_chats_dal import UsersChatsDal
 from DAL.groups_members_dal import GroupsMembersDal
 from DAL.groups_dal import GroupsDal
 from DAL.chats_dal import ChatsDal
-from datetime import datetime, timedelta
 from dateutil import parser
-import jwt
-from flask_bcrypt import Bcrypt
-import json
 
 #Business logic class of messages sent between users in chats and groups
 class MessagesBL:

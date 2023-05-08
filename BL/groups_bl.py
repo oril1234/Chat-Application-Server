@@ -1,4 +1,3 @@
-from DAL.users_dal import UsersDal
 from DAL.groups_dal import GroupsDal
 from DAL.groups_members_dal import GroupsMembersDal
 from datetime import datetime
