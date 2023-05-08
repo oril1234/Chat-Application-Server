@@ -1,5 +1,5 @@
 # Chat Application
-This is the server of a chat application. It listens to [React clients](https://github.com/oril1234/Cinema-Management-System-React-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
+This is the server of a chat application, built by Flask framework of python. It listens to [React clients](https://github.com/oril1234/Cinema-Management-System-React-Client) for HTTP calls and maintains websocket connection to allow real time updates with them.
 The server supports the following actions
 1. Send and receive messages in private chats of 2 users, and group chats with multiple participants
 2. Create new groups
@@ -9,9 +9,8 @@ The server supports the following actions
 6. block and unblock users by others.
 
 The server consists of 4 layers:
-1. Main - The module that is the first to receive API calls. It communicates using both HTTP and
-websocket protocols.
-2. Routes layer - The modules the HTTP requests are referred to from the main module
+1. Main - The module that is the first to receive API calls. It communicates with clients using both HTTP and Websocket protocols. The Websocket connection is implemented using the library socket.io.
+2. Routers layer - The modules the HTTP requests are referred to from the main module
 3. Business Logic Layer - The modules in which the HTTP requests are processed, and then directed to the data access layers.
 4. Data access layers - The modules that are called by the business logic modules in order to directly connect with Mongo Data base and JSON place holder web service
 
